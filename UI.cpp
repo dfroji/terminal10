@@ -13,9 +13,9 @@
 #include "ftxui/screen/terminal.hpp"
 #include "ftxui/component/event.hpp"
 
-#include "Game.h"
-
 using namespace ftxui;
+
+const std::string WORD_FILE = "../english-common.txt";
 
 void menu(){
 
@@ -33,7 +33,8 @@ void menu(){
           Button("Start", [&]{
               std::string length = lengths[selected_length];
               length.pop_back();
-              game_view(std::stoi(length));
+              Game* game = new Game(WORD_FILE);
+              game_view(std::stoi(length), game);
               }) | center,
           Button("Quit", screen.ExitLoopClosure()) | center,
           }) | hcenter,
@@ -45,12 +46,26 @@ void menu(){
   screen.Loop(menu);
 }
 
-void game_view(int length){
+void game_view(int length, Game* game){
   int time_left = length;
 
   auto screen = ScreenInteractive::Fullscreen();
   auto component = Container::Vertical({
-      Renderer([&]{return text(std::to_string(time_left));})
+      Renderer([&]{return text(std::to_string(time_left));}),
+      Renderer([&]{
+          std::string s{game->get_current_letter()->character};
+          return text(s);
+          }),
+      });
+
+  component |= CatchEvent([&](Event event) {
+      std::string s{game->get_current_letter()->character};
+      if (event.character() == s) {
+        game->go_to_next_letter();
+
+        return true;
+      }
+      return false;
       });
 
   std::thread refresh([&] {
@@ -60,6 +75,7 @@ void game_view(int length){
         screen.Post([&]{time_left--;});
         screen.Post(Event::Custom);
       }
+      delete game;
       screen.ExitLoopClosure()();
     });
 

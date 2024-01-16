@@ -1,4 +1,6 @@
 #pragma once
 
+#include "Game.h"
+
 void menu();
-void game_view(int length); 
+void game_view(int length, Game* game); 
