@@ -53,34 +53,55 @@ void game_view(int length, Game* game){
   auto component = Container::Vertical({
       Renderer([&]{return text(std::to_string(time_left));}),
       Renderer([&]{
+          Elements line;
           int n = 15;
-          std::string s = "";
           for (int i = 0; i < n; i++) {
             if (game->get_current_letter()->index < n - i) {
-              s.append(" ");
+              line.push_back(text(" "));
 
             } else {
-              std::string c{
-                game->get_nth_previous(n-i)->character
+              Letter* l = game->get_nth_previous(n-i);
+              std::string str{
+                l->character
               };
-              s.append(c);
+              Color c = Color::White;
+              switch(l->status) { 
+                case 2:
+                c = Color::GreenLight;
+                break;
+                case 3:
+                c = Color::Red;
+              }
+              Decorator d;
+              if (l->character == ' ' && l->status == incorrect) {
+                d = bgcolor(c);
+              } else {
+                d = color(c);
+              }
+              line.push_back(text(str) | d);
 
             }
           }
 
           for (int i = 0; i < n; i++) {
             std::string c{game->get_nth_next(n - (n-i))->character};
-            s.append(c);
+            line.push_back(text(c));
           }
-          return text(s);
+          return hbox(line);
           }),
       });
 
   component |= CatchEvent([&](Event event) {
-      std::string s{game->get_current_letter()->character};
+      Letter* letter = game->get_current_letter();
+      std::string s{letter->character};
       if (event.character() == s) {
+        letter->status = correct;
         game->go_to_next_letter();
+        return true;
 
+      } else if (event.is_character()) {
+        letter->status = incorrect;
+        game->go_to_next_letter();
         return true;
       }
       return false;
