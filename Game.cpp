@@ -10,7 +10,7 @@ Game::Game(std::string word_file) {
   while (std::getline(File, line)) {
     words_.emplace_back(line);
   }
-  generate_letters(10);
+  generate_letters(100);
 }
 
 Game::~Game() {
@@ -30,21 +30,24 @@ void Game::generate_letters(int n) {
     for (char c : word) {
       if (first_letter_ == nullptr) {
         first_letter_ = new Letter({
-            c, Status(active), nullptr, nullptr
+            c, Status(active), 0, nullptr, nullptr
             });
         current_letter_ = first_letter_;
         last_letter_ = first_letter_;
 
       } else {
         last_letter_->next = new Letter({
-            c, Status(inactive), nullptr, last_letter_
+            c, Status(inactive), last_letter_->index + 1, 
+            nullptr, last_letter_
             });
         last_letter_ = last_letter_->next;
       }
     }
 
+    // Add a space after the word
     last_letter_->next = new Letter({
-        ' ', Status(inactive), nullptr, last_letter_
+        ' ', Status(inactive), last_letter_->index, 
+        nullptr, last_letter_
         });
     last_letter_ = last_letter_->next;
   }
@@ -60,4 +63,20 @@ Letter* Game::get_current_letter() {
 
 void Game::go_to_next_letter() {
   current_letter_ = current_letter_->next;
+}
+
+Letter* Game::get_nth_previous(int n) {
+  Letter* l = current_letter_;
+  for (int i = 0; i < n; i++) {
+    l = l->prev;
+  }
+  return l;
+}
+
+Letter* Game::get_nth_next(int n) {
+  Letter* l = current_letter_;
+  for (int i = 0; i < n; i++) {
+    l = l->next;
+  }
+  return l;
 }

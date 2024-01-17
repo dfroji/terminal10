@@ -8,6 +8,7 @@ enum Status {inactive, active, correct, incorrect};
 struct Letter {
   char character;
   Status status;
+  int index;
   Letter* next;
   Letter* prev;
 };
@@ -28,6 +29,12 @@ class Game {
     
     // Change current_letter_ to its ->next
     void go_to_next_letter();
+
+    // Get the nth previous letter from current_letter_
+    Letter* get_nth_previous(int n);
+
+    // Get the nth next letter from current_letter_
+    Letter* get_nth_next(int n);
 
   private:
     std::vector<std::string> words_;

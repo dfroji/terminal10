@@ -53,7 +53,25 @@ void game_view(int length, Game* game){
   auto component = Container::Vertical({
       Renderer([&]{return text(std::to_string(time_left));}),
       Renderer([&]{
-          std::string s{game->get_current_letter()->character};
+          int n = 15;
+          std::string s = "";
+          for (int i = 0; i < n; i++) {
+            if (game->get_current_letter()->index < n - i) {
+              s.append(" ");
+
+            } else {
+              std::string c{
+                game->get_nth_previous(n-i)->character
+              };
+              s.append(c);
+
+            }
+          }
+
+          for (int i = 0; i < n; i++) {
+            std::string c{game->get_nth_next(n - (n-i))->character};
+            s.append(c);
+          }
           return text(s);
           }),
       });
