@@ -87,7 +87,6 @@ void game_view(int length, Game* game, int screen_width){
         game->go_to_prev_letter();
         return true;
 
-bin
       // Update screen_width with every caught event
       } else {
         screen_width = screen.dimx();
@@ -134,7 +133,7 @@ Element render_command(Game* game, int& screen_width) {
   for (int i = 0; i < n; i++) {
     if (letter_index >= n - i) {
       Letter* letter = game->get_nth_previous(n-i);
-      std::string chr = game->get_character(l);
+      std::string chr = game->get_character(letter);
 
       // Set the color of the character based on the letter's status
       Color clr;
