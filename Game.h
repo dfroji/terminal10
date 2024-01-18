@@ -36,6 +36,9 @@ class Game {
     // Get the nth next letter from current_letter_
     Letter* get_nth_next(int n);
 
+    // Return the given Letter's character as a string
+    std::string get_character(Letter* l);
+
   private:
     std::vector<std::string> words_;
 

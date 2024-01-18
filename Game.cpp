@@ -80,3 +80,8 @@ Letter* Game::get_nth_next(int n) {
   }
   return l;
 }
+
+std::string Game::get_character(Letter* l) {
+  std::string s{l->character};
+  return s;
+}
