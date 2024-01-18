@@ -9,6 +9,7 @@ struct Letter {
   char character;
   Status status;
   int index;
+  std::string input;
   Letter* next;
   Letter* prev;
 };

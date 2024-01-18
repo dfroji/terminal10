@@ -30,7 +30,7 @@ void Game::generate_letters(int n) {
     for (char c : word) {
       if (first_letter_ == nullptr) {
         first_letter_ = new Letter({
-            c, Status(active), 0, nullptr, nullptr
+            c, Status(active), 0, "", nullptr, nullptr
             });
         current_letter_ = first_letter_;
         last_letter_ = first_letter_;
@@ -38,7 +38,7 @@ void Game::generate_letters(int n) {
       } else {
         last_letter_->next = new Letter({
             c, Status(inactive), last_letter_->index + 1, 
-            nullptr, last_letter_
+            "", nullptr, last_letter_
             });
         last_letter_ = last_letter_->next;
       }
@@ -47,7 +47,7 @@ void Game::generate_letters(int n) {
     // Add a space after the word
     last_letter_->next = new Letter({
         ' ', Status(inactive), last_letter_->index, 
-        nullptr, last_letter_
+        "", nullptr, last_letter_
         });
     last_letter_ = last_letter_->next;
   }

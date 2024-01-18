@@ -61,15 +61,14 @@ void game_view(int length, Game* game){
 
             } else {
               Letter* l = game->get_nth_previous(n-i);
-              std::string str{
-                l->character
-              };
+              std::string str = game->get_character(l);
               Color c = Color::White;
               switch(l->status) { 
                 case 2:
                 c = Color::GreenLight;
                 break;
                 case 3:
+                str = l->input;
                 c = Color::Red;
               }
               Decorator d;
@@ -84,8 +83,8 @@ void game_view(int length, Game* game){
           }
 
           for (int i = 0; i < n; i++) {
-            std::string c{game->get_nth_next(n - (n-i))->character};
-            line.push_back(text(c));
+            Letter* l = game->get_nth_next(i);
+            line.push_back(text(game->get_character(l)));
           }
           return hbox(line);
           }),
@@ -93,7 +92,7 @@ void game_view(int length, Game* game){
 
   component |= CatchEvent([&](Event event) {
       Letter* letter = game->get_current_letter();
-      std::string s{letter->character};
+      std::string s = game->get_character(letter);
       if (event.character() == s) {
         letter->status = correct;
         game->go_to_next_letter();
@@ -101,6 +100,7 @@ void game_view(int length, Game* game){
 
       } else if (event.is_character()) {
         letter->status = incorrect;
+        letter->input = event.character();
         game->go_to_next_letter();
         return true;
       }
