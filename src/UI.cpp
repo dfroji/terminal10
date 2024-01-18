@@ -16,7 +16,7 @@
 
 using namespace ftxui;
 
-const std::string WORD_FILE = "../english-common.txt";
+const std::string WORD_FILE = "../wordlists/english-common.txt";
 
 void menu(){
 
