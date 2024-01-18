@@ -119,8 +119,8 @@ void game_view(int length, Game* game){
         screen.Post([&]{time_left--;});
         screen.Post(Event::Custom);
       }
-      delete game;
       screen.ExitLoopClosure()();
+      delete game;
     });
 
   screen.Loop(component);
