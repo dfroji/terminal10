@@ -65,6 +65,10 @@ void Game::go_to_next_letter() {
   current_letter_ = current_letter_->next;
 }
 
+void Game::go_to_prev_letter() {
+  current_letter_ = current_letter_->prev;
+}
+
 Letter* Game::get_nth_previous(int n) {
   Letter* l = current_letter_;
   for (int i = 0; i < n; i++) {

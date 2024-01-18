@@ -31,6 +31,9 @@ class Game {
     // Change current_letter_ to its ->next
     void go_to_next_letter();
 
+    // Change current_letter_ to its ->prev
+    void go_to_prev_letter();
+
     // Get the nth previous letter from current_letter_
     Letter* get_nth_previous(int n);
 

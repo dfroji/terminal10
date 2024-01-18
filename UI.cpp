@@ -108,6 +108,11 @@ void game_view(int length, Game* game){
         letter->input = event.character();
         game->go_to_next_letter();
         return true;
+      } else if (event == Event::Backspace && letter->prev != nullptr) {
+        game->go_to_prev_letter();
+        letter = letter->prev;
+        letter->status = active;
+        letter->input = "";
       }
       return false;
       });
