@@ -57,8 +57,8 @@ void game_view(int length, Game* game){
           int n = 15;
           int letter_index = game->get_current_letter()->index;
 
-          if (letter_index < n - 1) {
-            for (int i = 0; i < n - letter_index - 1; i++) {
+          if (letter_index < n) {
+            for (int i = 0; i < n - letter_index; i++) {
               line.push_back(text(" "));
             }
           }
