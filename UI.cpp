@@ -22,6 +22,7 @@ void menu(){
 
   auto screen = ScreenInteractive::Fullscreen();
 
+  // Entries for a toggle
   std::vector<std::string> lengths = {
     "15s",
     "30s",
@@ -31,17 +32,23 @@ void menu(){
 
   auto menu = Container::Vertical({
       Container::Horizontal({
+          // Start button initializes a Game and runs the game UI
           Button("Start", [&]{
               std::string length = lengths[selected_length];
-              length.pop_back();
+              length.pop_back(); // Pop the 's' from the toggle's entries
               Game* game = new Game(WORD_FILE);
               game_view(std::stoi(length), game, screen.dimx());
               }) | center,
+
+          // Quit button
           Button("Quit", screen.ExitLoopClosure()) | center,
           }) | hcenter,
+
+      // Game length toggle
       Container::Horizontal({
           Toggle(&lengths, &selected_length) | borderLight
           }) | hcenter,
+
   });
 
   screen.Loop(menu);
@@ -52,6 +59,7 @@ void game_view(int length, Game* game, int screen_width){
 
   auto screen = ScreenInteractive::Fullscreen();
 
+  // Component containing the game UI rendering
   auto component = Container::Vertical({
       Renderer([&]{return text(std::to_string(time_left));}),
       Renderer([&]{return render_command(game, screen_width);}),
@@ -60,30 +68,37 @@ void game_view(int length, Game* game, int screen_width){
   component |= CatchEvent([&](Event event) {
       Letter* letter = game->get_current_letter();
       std::string s = game->get_character(letter);
+  
+      // Correct input
       if (event.character() == s) {
         letter->status = correct;
         game->go_to_next_letter();
         return true;
 
+      // Incorrect input
       } else if (event.is_character()) {
         letter->status = incorrect;
         letter->input = event.character();
         game->go_to_next_letter();
         return true;
 
+      // Input is backspace
       } else if (event == Event::Backspace && letter->prev != nullptr) {
         game->go_to_prev_letter();
         return true;
 
+bin
+      // Update screen_width with every caught event
       } else {
         screen_width = screen.dimx();
-        return true;
 
       }
 
       return false;
       });
 
+  // Thread for a custom event to update the game UI every second.
+  // Exit the loop once time runs out.
   std::thread refresh([&] {
       while (time_left > 1) {
         using namespace std::chrono_literals;
@@ -91,6 +106,7 @@ void game_view(int length, Game* game, int screen_width){
         screen.Post([&]{time_left--;});
         screen.Post(Event::Custom);
       }
+
       screen.ExitLoopClosure()();
     });
 
@@ -100,51 +116,71 @@ void game_view(int length, Game* game, int screen_width){
   delete game;
 }
 
+// Handles the rendering of game UI letters
 Element render_command(Game* game, int& screen_width) {
     
   Elements line;
   int n = screen_width / 2;
   int letter_index = game->get_current_letter()->index;
 
+  // Buffer spaces to keep the current letter in the middle of the terminal
   if (letter_index < n) {
     for (int i = 0; i < n - letter_index; i++) {
       line.push_back(text(" "));
     }
   }
-
+  
+  // n previous letters in front of the current letter
   for (int i = 0; i < n; i++) {
     if (letter_index >= n - i) {
-      Letter* l = game->get_nth_previous(n-i);
-      std::string str = game->get_character(l);
-      Color c = Color::White;
-      switch(l->status) {
+      Letter* letter = game->get_nth_previous(n-i);
+      std::string chr = game->get_character(l);
+
+      // Set the color of the character based on the letter's status
+      Color clr;
+      switch(letter->status) {
         case correct:
-        c = Color::GreenLight;
+        clr = Color::GreenLight;
         break;
+
         case incorrect:
-        str = l->input;
-        c = Color::Red;
+        // Render the incorrect input instead of the original character
+        chr = letter->input;
+        clr = Color::Red;
       }
-      Decorator d;
-      if (str == " " && l->status == incorrect) {
-        d = bgcolor(c);
+
+      // Color the background if chr is an incorrectly input space.
+      // Otherwise color the character itself
+      Decorator dcr;
+      if (chr == " " && letter->status == incorrect) {
+        dcr = bgcolor(clr);
+
       } else {
-        d = color(c);
+        dcr = color(clr);
+
       }
-      line.push_back(text(str) | d);
+
+      line.push_back(text(chr) | dcr);
 
     }
   }
 
+  // Render the current letter along with the next n letters
   for (int i = 0; i < n; i++) {
     Letter* l = game->get_nth_next(i);
+
+    // Set color to white if it is the current letter.
+    // Otherwise keep the color gray.
     Color c = Color::GrayDark;
     switch(l->status) {
       case active:
       c = Color::White;
       break;
     }
+
     line.push_back(text(game->get_character(l)) | color(c));
   }
+
+  // Return characters in a horizontal box for rendering
   return hbox(line);
 }

@@ -3,8 +3,10 @@
 #include <string>
 #include <vector>
 
+// Status for Letters
 enum Status {inactive, active, correct, incorrect};
 
+// Type for the writing game characters
 struct Letter {
   char character;
   Status status;
@@ -44,6 +46,7 @@ class Game {
     std::string get_character(Letter* l);
 
   private:
+    // Vector to store a word list
     std::vector<std::string> words_;
 
     Letter* first_letter_ = nullptr;

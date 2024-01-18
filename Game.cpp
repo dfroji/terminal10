@@ -5,15 +5,21 @@
 #include <ctime>
 
 Game::Game(std::string word_file) {
+
+  // Read the given word file for words
   std::ifstream File(word_file);
   std::string line;
   while (std::getline(File, line)) {
     words_.emplace_back(line);
   }
+
+  // Generate the initial letters from n words
   generate_letters(100);
 }
 
 Game::~Game() {
+
+  // Free memory from the Letters
   Letter* current = first_letter_;
   while (current != nullptr) {
     Letter* to_be_deleted = current;
@@ -23,11 +29,19 @@ Game::~Game() {
 }
 
 void Game::generate_letters(int n) {
+
+  // Use the current time as a seed for the random number generator
   std::srand(std::time(nullptr));
+
+  // Generate the letters of n words.
+  // Also add a space after every whole word.
   for (int i = 0; i < n; i++) {
     std::string word = words_[std::rand() % words_.size()];
 
     for (char c : word) {
+
+      // If no Letter exists, first_letter_ becomes the new Letter.
+      // Otherwise it's always last_letter_->next.
       if (first_letter_ == nullptr) {
         first_letter_ = new Letter({
             c, Status(active), 0, "", nullptr, nullptr
