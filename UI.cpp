@@ -5,6 +5,7 @@
 #include <vector>
 #include <thread>
 #include <chrono>
+#include <cmath>
 
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/component_base.hpp"
@@ -34,7 +35,7 @@ void menu(){
               std::string length = lengths[selected_length];
               length.pop_back();
               Game* game = new Game(WORD_FILE);
-              game_view(std::stoi(length), game);
+              game_view(std::stoi(length), game, screen.dimx());
               }) | center,
           Button("Quit", screen.ExitLoopClosure()) | center,
           }) | hcenter,
@@ -46,15 +47,16 @@ void menu(){
   screen.Loop(menu);
 }
 
-void game_view(int length, Game* game){
+void game_view(int length, Game* game, int screen_width){
   int time_left = length;
 
   auto screen = ScreenInteractive::Fullscreen();
+
   auto component = Container::Vertical({
       Renderer([&]{return text(std::to_string(time_left));}),
       Renderer([&]{
           Elements line;
-          int n = 15;
+          int n = screen_width / 2;
           int letter_index = game->get_current_letter()->index;
 
           if (letter_index < n) {
@@ -118,7 +120,13 @@ void game_view(int length, Game* game){
       } else if (event == Event::Backspace && letter->prev != nullptr) {
         game->go_to_prev_letter();
         return true;
+
+      } else {
+        screen_width = screen.dimx();
+        return true;
+
       }
+
       return false;
       });
 
