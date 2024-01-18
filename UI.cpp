@@ -72,7 +72,7 @@ void game_view(int length, Game* game){
                 c = Color::Red;
               }
               Decorator d;
-              if (l->character == ' ' && l->status == incorrect) {
+              if (str == " " && l->status == incorrect) {
                 d = bgcolor(c);
               } else {
                 d = color(c);
