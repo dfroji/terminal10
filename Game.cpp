@@ -106,3 +106,20 @@ std::string Game::get_character(Letter* l) {
   std::string s{l->character};
   return s;
 }
+
+void Game::add_mistake() {
+  mistakes_ += 1;
+  total_mistakes_ += 1;
+}
+
+void Game::remove_mistake() {
+  mistakes_ -= 1;
+}
+
+int Game::get_mistakes() {
+  return mistakes_;
+}
+
+int Game::get_total_mistakes() {
+  return total_mistakes_;
+}

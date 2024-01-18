@@ -61,7 +61,16 @@ void game_view(int length, Game* game, int screen_width){
 
   // Component containing the game UI rendering
   auto component = Container::Vertical({
-      Renderer([&]{return text(std::to_string(time_left));}),
+      Renderer([&]{return text("Time left: " + std::to_string(time_left));}),
+      Renderer([&]{
+          return text(
+              "Mistakes (total): " 
+              + std::to_string(game->get_mistakes())
+              + " ("
+              + std::to_string(game->get_total_mistakes())
+              + ")"
+            );
+          }),
       Renderer([&]{return render_command(game, screen_width);}),
       });
 
@@ -80,10 +89,17 @@ void game_view(int length, Game* game, int screen_width){
         letter->status = incorrect;
         letter->input = event.character();
         game->go_to_next_letter();
+        game->add_mistake();
         return true;
 
       // Input is backspace
       } else if (event == Event::Backspace && letter->prev != nullptr) {
+        switch (game->get_nth_previous(1)->status) {
+          case incorrect:
+          game->remove_mistake();
+
+        }
+
         game->go_to_prev_letter();
         return true;
 

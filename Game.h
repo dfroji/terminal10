@@ -45,6 +45,18 @@ class Game {
     // Return the given Letter's character as a string
     std::string get_character(Letter* l);
 
+    // Add to the mistakes_ and total_mistakes_ counters
+    void add_mistake();
+
+    // Remove from the mistakes_ counter
+    void remove_mistake();
+
+    // Get mistakes_
+    int get_mistakes();
+
+    // Get total_mistakes_
+    int get_total_mistakes();
+
   private:
     // Vector to store a word list
     std::vector<std::string> words_;
@@ -52,4 +64,7 @@ class Game {
     Letter* first_letter_ = nullptr;
     Letter* current_letter_ = nullptr;
     Letter* last_letter_ = nullptr;
+
+    int mistakes_ = 0;
+    int total_mistakes_ = 0;
 };
