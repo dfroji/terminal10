@@ -68,11 +68,11 @@ void game_view(int length, Game* game){
               Letter* l = game->get_nth_previous(n-i);
               std::string str = game->get_character(l);
               Color c = Color::White;
-              switch(l->status) { 
-                case 2:
+              switch(l->status) {
+                case correct:
                 c = Color::GreenLight;
                 break;
-                case 3:
+                case incorrect:
                 str = l->input;
                 c = Color::Red;
               }
@@ -89,7 +89,13 @@ void game_view(int length, Game* game){
 
           for (int i = 0; i < n; i++) {
             Letter* l = game->get_nth_next(i);
-            line.push_back(text(game->get_character(l)));
+            Color c = Color::GrayDark;
+            switch(l->status) {
+              case active:
+              c = Color::White;
+              break;
+            }
+            line.push_back(text(game->get_character(l)) | color(c));
           }
           return hbox(line);
           }),
@@ -111,9 +117,6 @@ void game_view(int length, Game* game){
 
       } else if (event == Event::Backspace && letter->prev != nullptr) {
         game->go_to_prev_letter();
-        letter = letter->prev;
-        letter->status = active;
-        letter->input = "";
         return true;
       }
       return false;

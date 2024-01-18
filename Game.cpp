@@ -63,10 +63,13 @@ Letter* Game::get_current_letter() {
 
 void Game::go_to_next_letter() {
   current_letter_ = current_letter_->next;
+  current_letter_->status = active;
 }
 
 void Game::go_to_prev_letter() {
+  current_letter_->status = inactive;
   current_letter_ = current_letter_->prev;
+  current_letter_->status = active;
 }
 
 Letter* Game::get_nth_previous(int n) {
