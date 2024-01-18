@@ -46,7 +46,7 @@ void Game::generate_letters(int n) {
 
     // Add a space after the word
     last_letter_->next = new Letter({
-        ' ', Status(inactive), last_letter_->index, 
+        ' ', Status(inactive), last_letter_->index + 1, 
         "", nullptr, last_letter_
         });
     last_letter_ = last_letter_->next;

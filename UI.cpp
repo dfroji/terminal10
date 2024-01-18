@@ -55,11 +55,16 @@ void game_view(int length, Game* game){
       Renderer([&]{
           Elements line;
           int n = 15;
-          for (int i = 0; i < n; i++) {
-            if (game->get_current_letter()->index < n - i) {
-              line.push_back(text(" "));
+          int letter_index = game->get_current_letter()->index;
 
-            } else {
+          if (letter_index < n - 1) {
+            for (int i = 0; i < n - letter_index - 1; i++) {
+              line.push_back(text(" "));
+            }
+          }
+
+          for (int i = 0; i < n; i++) {
+            if (letter_index >= n - i) {
               Letter* l = game->get_nth_previous(n-i);
               std::string str = game->get_character(l);
               Color c = Color::White;
