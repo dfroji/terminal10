@@ -54,53 +54,7 @@ void game_view(int length, Game* game, int screen_width){
 
   auto component = Container::Vertical({
       Renderer([&]{return text(std::to_string(time_left));}),
-      Renderer([&]{
-          Elements line;
-          int n = screen_width / 2;
-          int letter_index = game->get_current_letter()->index;
-
-          if (letter_index < n) {
-            for (int i = 0; i < n - letter_index; i++) {
-              line.push_back(text(" "));
-            }
-          }
-
-          for (int i = 0; i < n; i++) {
-            if (letter_index >= n - i) {
-              Letter* l = game->get_nth_previous(n-i);
-              std::string str = game->get_character(l);
-              Color c = Color::White;
-              switch(l->status) {
-                case correct:
-                c = Color::GreenLight;
-                break;
-                case incorrect:
-                str = l->input;
-                c = Color::Red;
-              }
-              Decorator d;
-              if (str == " " && l->status == incorrect) {
-                d = bgcolor(c);
-              } else {
-                d = color(c);
-              }
-              line.push_back(text(str) | d);
-
-            }
-          }
-
-          for (int i = 0; i < n; i++) {
-            Letter* l = game->get_nth_next(i);
-            Color c = Color::GrayDark;
-            switch(l->status) {
-              case active:
-              c = Color::White;
-              break;
-            }
-            line.push_back(text(game->get_character(l)) | color(c));
-          }
-          return hbox(line);
-          }),
+      Renderer([&]{return render_command(game, screen_width);}),
       });
 
   component |= CatchEvent([&](Event event) {
@@ -140,7 +94,57 @@ void game_view(int length, Game* game, int screen_width){
       screen.ExitLoopClosure()();
     });
 
+
   screen.Loop(component);
   refresh.join();
   delete game;
+}
+
+Element render_command(Game* game, int& screen_width) {
+    
+  Elements line;
+  int n = screen_width / 2;
+  int letter_index = game->get_current_letter()->index;
+
+  if (letter_index < n) {
+    for (int i = 0; i < n - letter_index; i++) {
+      line.push_back(text(" "));
+    }
+  }
+
+  for (int i = 0; i < n; i++) {
+    if (letter_index >= n - i) {
+      Letter* l = game->get_nth_previous(n-i);
+      std::string str = game->get_character(l);
+      Color c = Color::White;
+      switch(l->status) {
+        case correct:
+        c = Color::GreenLight;
+        break;
+        case incorrect:
+        str = l->input;
+        c = Color::Red;
+      }
+      Decorator d;
+      if (str == " " && l->status == incorrect) {
+        d = bgcolor(c);
+      } else {
+        d = color(c);
+      }
+      line.push_back(text(str) | d);
+
+    }
+  }
+
+  for (int i = 0; i < n; i++) {
+    Letter* l = game->get_nth_next(i);
+    Color c = Color::GrayDark;
+    switch(l->status) {
+      case active:
+      c = Color::White;
+      break;
+    }
+    line.push_back(text(game->get_character(l)) | color(c));
+  }
+  return hbox(line);
 }
