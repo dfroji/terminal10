@@ -130,9 +130,9 @@ void game_view(int length, Game* game){
         screen.Post(Event::Custom);
       }
       screen.ExitLoopClosure()();
-      delete game;
     });
 
   screen.Loop(component);
   refresh.join();
+  delete game;
 }
