@@ -20,7 +20,7 @@ endif()
 
 FetchContent_MakeAvailable(ftxui)
 
-add_executable(terminal10 main.cpp UI.cpp Game.cpp)
+add_executable(terminal10 src/main.cpp src/UI.cpp src/Game.cpp)
 target_include_directories(terminal10 PRIVATE src)
 
 target_link_libraries(terminal10 
