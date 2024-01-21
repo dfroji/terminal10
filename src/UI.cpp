@@ -18,8 +18,8 @@ using namespace ftxui;
 
 const std::string WORD_FILE = "../wordlists/english-common.txt";
 
-void game_view(int length, Game* game, int screen_width);
-Element render_command(Game* game, int& screen_width);
+void game_UI(int length, Game* game, int screen_width);
+Element letter_render(Game* game, int& screen_width);
 
 void UI::menu(){
 
@@ -40,7 +40,7 @@ void UI::menu(){
               std::string length = lengths[selected_length];
               length.pop_back(); // Pop the 's' from the toggle's entries
               Game* game = new Game(WORD_FILE, std::stoi(length));
-              game_view(std::stoi(length), game, screen.dimx());
+              game_UI(std::stoi(length), game, screen.dimx());
               }, ButtonOption::Ascii()) | center,
 
           // Quit button
@@ -57,7 +57,7 @@ void UI::menu(){
   screen.Loop(menu);
 }
 
-void game_view(int length, Game* game, int screen_width){
+void game_UI(int length, Game* game, int screen_width){
 
   int time_left = length;
   // Bools for refresh() thread
@@ -80,7 +80,7 @@ void game_view(int length, Game* game, int screen_width){
               + ")"
             );
           }),
-      Renderer([&]{return render_command(game, screen_width);}),
+      Renderer([&]{return letter_render(game, screen_width);}),
       });
 
   // Modal component to be displayed after time has run out
@@ -183,7 +183,7 @@ void game_view(int length, Game* game, int screen_width){
 }
 
 // Handles the rendering of game UI letters
-Element render_command(Game* game, int& screen_width) {
+Element letter_render(Game* game, int& screen_width) {
     
   Elements line;
   int n = screen_width / 2;
