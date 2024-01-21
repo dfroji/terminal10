@@ -21,15 +21,17 @@ const std::string WORD_FILE = "../wordlists/english-common.txt";
 void game_UI(int length, Game* game, int screen_width);
 Element letter_render(Game* game, int& screen_width);
 
+MenuOption hmenu_style();
+
 void UI::menu(){
 
   auto screen = ScreenInteractive::Fullscreen();
 
   // Entries for a toggle
   std::vector<std::string> lengths = {
-    "15s",
-    "30s",
-    "60s"
+    "15",
+    "30",
+    "60"
   };
   int selected_length = 0;
 
@@ -38,19 +40,19 @@ void UI::menu(){
           // Start button initializes a Game and runs the game UI
           Button("Start", [&]{
               std::string length = lengths[selected_length];
-              length.pop_back(); // Pop the 's' from the toggle's entries
               Game* game = new Game(WORD_FILE, std::stoi(length));
               game_UI(std::stoi(length), game, screen.dimx());
-              }, ButtonOption::Ascii()) | center,
+              }, ButtonOption::Ascii()),
 
           // Quit button
-          Button("Quit", screen.ExitLoopClosure(), ButtonOption::Ascii()) | center,
+          Button("Quit", screen.ExitLoopClosure(), ButtonOption::Ascii()),
           }) | center,
 
       // Game length toggle
       Container::Horizontal({
-          Menu(&lengths, &selected_length, MenuOption::HorizontalAnimated())
-          }) | hcenter,
+          Renderer([]{return text("Time (s) --- ");}),
+          Menu(&lengths, &selected_length, hmenu_style()),
+          }),
 
   });
 
@@ -249,4 +251,25 @@ Element letter_render(Game* game, int& screen_width) {
 
   // Return characters in a horizontal box for rendering
   return hbox(line);
+}
+
+MenuOption hmenu_style() {
+  using namespace std::chrono_literals;
+
+  auto option = MenuOption::HorizontalAnimated();
+  option.underline.SetAnimation(150ms, animation::easing::BackOut);
+  option.entries_option.transform = [](EntryState state) {
+    Element e = text(state.label) | hcenter;
+    if (state.focused)
+      e = e | color(Color::Cyan);
+    if (state.active)
+      e = e | bold;
+    if (!state.focused && !state.active)
+      e = e | dim;
+    return e;
+  };
+  option.underline.color_inactive = Color::Default;
+  option.underline.color_active = Color::Cyan;
+
+  return option;
 }
