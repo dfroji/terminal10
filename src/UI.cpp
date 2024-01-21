@@ -18,8 +18,10 @@ using namespace ftxui;
 
 const std::string WORD_FILE = "../wordlists/english-common.txt";
 
+void game_view(int length, Game* game, int screen_width);
+Element render_command(Game* game, int& screen_width);
 
-void menu(){
+void UI::menu(){
 
   auto screen = ScreenInteractive::Fullscreen();
 

@@ -1,6 +1,6 @@
 #include "UI.h"
 
 int main(){
-  menu();
+  UI::menu();
   return 0;
 }
