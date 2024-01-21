@@ -18,6 +18,7 @@ using namespace ftxui;
 
 const std::string WORD_FILE = "../wordlists/english-common.txt";
 
+
 void menu(){
 
   auto screen = ScreenInteractive::Fullscreen();
@@ -59,9 +60,13 @@ void game_view(int length, Game* game, int screen_width){
 
   auto screen = ScreenInteractive::Fullscreen();
 
+  bool has_started = false;
+
   // Component containing the game UI rendering
   auto main_component = Container::Vertical({
-      Renderer([&]{return text("Time left: " + std::to_string(time_left));}),
+      Renderer([&]{
+          return text("Time left: " + std::to_string(time_left));
+          }),
       Renderer([&]{
           return text(
               "Mistakes (total): " 
@@ -93,12 +98,14 @@ void game_view(int length, Game* game, int screen_width){
   
       // Correct input
       if (event.character() == s) {
+        has_started = true;
         letter->status = correct;
         game->go_to_next_letter();
         return true;
 
       // Incorrect input
       } else if (event.is_character()) {
+        has_started = true;
         letter->status = incorrect;
         letter->input = event.character();
         game->add_mistake();
@@ -132,10 +139,12 @@ void game_view(int length, Game* game, int screen_width){
       while (time_left > 1) {
         using namespace std::chrono_literals;
         std::this_thread::sleep_for(1s);
-        screen.Post([&]{time_left--;});
-        screen.Post(Event::Custom);
-      }
 
+        if (has_started) {
+          screen.Post([&]{time_left--;});
+          screen.Post(Event::Custom);
+        }
+      }
       result_shown = true;
     });
 
