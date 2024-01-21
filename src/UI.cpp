@@ -36,7 +36,7 @@ void menu(){
           Button("Start", [&]{
               std::string length = lengths[selected_length];
               length.pop_back(); // Pop the 's' from the toggle's entries
-              Game* game = new Game(WORD_FILE);
+              Game* game = new Game(WORD_FILE, std::stoi(length));
               game_view(std::stoi(length), game, screen.dimx());
               }) | center,
 
@@ -60,7 +60,7 @@ void game_view(int length, Game* game, int screen_width){
   auto screen = ScreenInteractive::Fullscreen();
 
   // Component containing the game UI rendering
-  auto component = Container::Vertical({
+  auto main_component = Container::Vertical({
       Renderer([&]{return text("Time left: " + std::to_string(time_left));}),
       Renderer([&]{
           return text(
@@ -74,7 +74,20 @@ void game_view(int length, Game* game, int screen_width){
       Renderer([&]{return render_command(game, screen_width);}),
       });
 
-  component |= CatchEvent([&](Event event) {
+  auto result = Container::Vertical({
+      Renderer([&]{
+          return text("wpm: " +std::to_string(game->get_wpm()));
+          }),
+      Button("OK", screen.ExitLoopClosure()),
+      });
+  bool result_shown = false;
+
+  main_component |= Modal(result, &result_shown);
+
+  main_component |= CatchEvent([&](Event event) {
+
+      if (result_shown) {return false;}
+
       Letter* letter = game->get_current_letter();
       std::string s = game->get_character(letter);
   
@@ -88,12 +101,13 @@ void game_view(int length, Game* game, int screen_width){
       } else if (event.is_character()) {
         letter->status = incorrect;
         letter->input = event.character();
-        game->go_to_next_letter();
         game->add_mistake();
+        game->go_to_next_letter();
         return true;
 
       // Input is backspace
-      } else if (event == Event::Backspace && letter->prev != nullptr) {
+      } else if (event == Event::Backspace 
+                 && letter->prev != nullptr) {
         switch (game->get_nth_previous(1)->status) {
           case incorrect:
           game->remove_mistake();
@@ -122,11 +136,11 @@ void game_view(int length, Game* game, int screen_width){
         screen.Post(Event::Custom);
       }
 
-      screen.ExitLoopClosure()();
+      result_shown = true;
     });
 
 
-  screen.Loop(component);
+  screen.Loop(main_component);
   refresh.join();
   delete game;
 }

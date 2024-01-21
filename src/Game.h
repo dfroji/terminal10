@@ -18,7 +18,7 @@ struct Letter {
 
 class Game {
   public:
-    Game(std::string word_file);
+    Game(std::string word_file, int length);
     ~Game();
 
     // Get n words from words_ and generate Letters out of them
@@ -57,9 +57,15 @@ class Game {
     // Get total_mistakes_
     int get_total_mistakes();
 
+    // Return words per minute
+    int get_wpm();
+
   private:
+
+    int length_;
+
     // Vector to store a word list
-    std::vector<std::string> words_;
+    std::vector<std::string> wordlist_;
 
     Letter* first_letter_ = nullptr;
     Letter* current_letter_ = nullptr;
@@ -67,4 +73,7 @@ class Game {
 
     int mistakes_ = 0;
     int total_mistakes_ = 0;
+
+    std::vector<int> mistakes_by_word_ = {0};
+    int current_word_ = 0;
 };

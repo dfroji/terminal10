@@ -3,14 +3,17 @@
 #include <fstream>
 #include <cstdlib>
 #include <ctime>
+#include <cmath>
 
-Game::Game(std::string word_file) {
+Game::Game(std::string word_file, int length) {
+
+  length_ = length;
 
   // Read the given word file for words
   std::ifstream File(word_file);
   std::string line;
   while (std::getline(File, line)) {
-    words_.emplace_back(line);
+    wordlist_.emplace_back(line);
   }
 
   // Generate the initial letters from n words
@@ -30,13 +33,15 @@ Game::~Game() {
 
 void Game::generate_letters(int n) {
 
+  mistakes_by_word_.reserve(std::size(mistakes_by_word_) + n);
+
   // Use the current time as a seed for the random number generator
   std::srand(std::time(nullptr));
 
   // Generate the letters of n words.
   // Also add a space after every whole word.
   for (int i = 0; i < n; i++) {
-    std::string word = words_[std::rand() % words_.size()];
+    std::string word = wordlist_[std::rand() % wordlist_.size()];
 
     for (char c : word) {
 
@@ -76,14 +81,25 @@ Letter* Game::get_current_letter() {
 }
 
 void Game::go_to_next_letter() {
+  if (current_letter_->character == ' ') {
+    current_word_ += 1;
+    mistakes_by_word_[current_word_] = 0;
+  }
+
   current_letter_ = current_letter_->next;
   current_letter_->status = active;
+
 }
 
 void Game::go_to_prev_letter() {
   current_letter_->status = inactive;
   current_letter_ = current_letter_->prev;
   current_letter_->status = active;
+  
+  if (current_letter_->character == ' ') {
+    mistakes_by_word_[current_word_] = -1;
+    current_word_ -= 1;
+  }
 }
 
 Letter* Game::get_nth_previous(int n) {
@@ -110,10 +126,12 @@ std::string Game::get_character(Letter* l) {
 void Game::add_mistake() {
   mistakes_ += 1;
   total_mistakes_ += 1;
+  mistakes_by_word_[current_word_] += 1;
 }
 
 void Game::remove_mistake() {
   mistakes_ -= 1;
+  mistakes_by_word_[current_word_] -= 1;
 }
 
 int Game::get_mistakes() {
@@ -122,4 +140,13 @@ int Game::get_mistakes() {
 
 int Game::get_total_mistakes() {
   return total_mistakes_;
+}
+
+int Game::get_wpm() {
+  double correct_words = 0;
+  for (int i = 0; i < current_word_; i++) {
+    if (mistakes_by_word_[i] == 0) {correct_words += 1;}
+  }
+
+  return std::floor(correct_words / length_ * 60); 
 }
