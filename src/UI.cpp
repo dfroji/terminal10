@@ -18,7 +18,6 @@ using namespace ftxui;
 
 const std::string WORD_FILE = "../wordlists/english-common.txt";
 
-bool has_started = false;
 
 void menu(){
 
@@ -58,6 +57,8 @@ void menu(){
 
 void game_view(int length, Game* game, int screen_width){
   int time_left = length;
+  bool has_started = false;
+  bool is_exited = false;
 
   auto screen = ScreenInteractive::Fullscreen();
 
@@ -125,6 +126,11 @@ void game_view(int length, Game* game, int screen_width){
         game->go_to_prev_letter();
         return true;
 
+      } else if (event == Event::Escape) {
+        is_exited = true;
+        screen.ExitLoopClosure()();
+        return true;
+
       // Update screen_width with every caught event
       } else {
         screen_width = screen.dimx();
@@ -137,16 +143,21 @@ void game_view(int length, Game* game, int screen_width){
   // Thread for a custom event to update the game UI every second.
   // Exit the loop once time runs out.
   std::thread refresh([&] {
-      while (time_left > 1) {
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(1s);
+      int time = 0;
+      while (time_left > 1 && !is_exited) {
 
-        if (has_started) {
+        // 1ms instead of 1s so exiting the game 
+        // doesn't have to wait for the sleep
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(1ms);
+        time++;
+        if (has_started && time == 1000) {
           screen.Post([&]{time_left--;});
           screen.Post(Event::Custom);
+          time = 0;
         }
       }
-      result_shown = true;
+      if (!is_exited) {result_shown = true;}
     });
 
 
