@@ -22,6 +22,7 @@ void game_UI(int length, Game* game, int screen_width);
 Element letter_render(Game* game, int& screen_width);
 
 MenuOption hmenu_style();
+ButtonOption button_style();
 
 void UI::menu(){
 
@@ -42,15 +43,14 @@ void UI::menu(){
               std::string length = lengths[selected_length];
               Game* game = new Game(WORD_FILE, std::stoi(length));
               game_UI(std::stoi(length), game, screen.dimx());
-              }, ButtonOption::Ascii()),
+              }, button_style()),
 
           // Quit button
-          Button("Quit", screen.ExitLoopClosure(), ButtonOption::Ascii()),
+          Button("Quit", screen.ExitLoopClosure(), button_style()),
           }) | center,
 
       // Game length toggle
       Container::Horizontal({
-          Renderer([]{return text("Time (s) --- ");}),
           Menu(&lengths, &selected_length, hmenu_style()),
           }),
 
@@ -87,10 +87,10 @@ void game_UI(int length, Game* game, int screen_width){
 
   // Modal component to be displayed after time has run out
   auto result = Container::Vertical({
+      Button("OK", screen.ExitLoopClosure(), button_style()),
       Renderer([&]{
           return text("wpm: " + std::to_string(game->get_wpm()));
           }),
-      Button("OK", screen.ExitLoopClosure()),
       });
   bool result_shown = false;
 
@@ -270,6 +270,14 @@ MenuOption hmenu_style() {
   };
   option.underline.color_inactive = Color::Default;
   option.underline.color_active = Color::Cyan;
+  option.elements_prefix = []{return text(" Time (s) --- ");};
+  option.elements_infix = []{return text(" / ");};
+
+  return option;
+}
+
+ButtonOption button_style() {
+  auto option = ButtonOption::Animated();
 
   return option;
 }
