@@ -39,15 +39,15 @@ void menu(){
               length.pop_back(); // Pop the 's' from the toggle's entries
               Game* game = new Game(WORD_FILE, std::stoi(length));
               game_view(std::stoi(length), game, screen.dimx());
-              }) | center,
+              }, ButtonOption::Ascii()) | center,
 
           // Quit button
-          Button("Quit", screen.ExitLoopClosure()) | center,
-          }) | hcenter,
+          Button("Quit", screen.ExitLoopClosure(), ButtonOption::Ascii()) | center,
+          }) | center,
 
       // Game length toggle
       Container::Horizontal({
-          Toggle(&lengths, &selected_length) | borderLight
+          Menu(&lengths, &selected_length, MenuOption::HorizontalAnimated())
           }) | hcenter,
 
   });
@@ -56,7 +56,9 @@ void menu(){
 }
 
 void game_view(int length, Game* game, int screen_width){
+
   int time_left = length;
+  // Bools for refresh() thread
   bool has_started = false;
   bool is_exited = false;
 
@@ -125,13 +127,15 @@ void game_view(int length, Game* game, int screen_width){
 
         game->go_to_prev_letter();
         return true;
-
+      
+      // Input is esc
       } else if (event == Event::Escape) {
         is_exited = true;
         screen.ExitLoopClosure()();
         return true;
 
-      // Update screen_width with every caught event
+      // Update screen_width with every caught event.
+      // Trigger result screen once time runs out.
       } else {
         screen_width = screen.dimx();
         if (time_left == 0) {
@@ -157,7 +161,7 @@ void game_view(int length, Game* game, int screen_width){
         }
 
         // 50ms instead of 1s so the delay after 
-        // exiting the game isn't so noticeable
+        // exiting out of the game UI isn't so noticeable
         using namespace std::chrono_literals;
         std::this_thread::sleep_for(50ms);
         ticks++;
