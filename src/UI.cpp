@@ -134,6 +134,9 @@ void game_view(int length, Game* game, int screen_width){
       // Update screen_width with every caught event
       } else {
         screen_width = screen.dimx();
+        if (time_left == 0) {
+          result_shown = true;
+        }
 
       }
 
@@ -143,21 +146,28 @@ void game_view(int length, Game* game, int screen_width){
   // Thread for a custom event to update the game UI every second.
   // Exit the loop once time runs out.
   std::thread refresh([&] {
-      int time = 0;
-      while (time_left > 1 && !is_exited) {
+      int ticks = 0;
 
-        // 1ms instead of 1s so exiting the game 
-        // doesn't have to wait for the sleep
-        using namespace std::chrono_literals;
-        std::this_thread::sleep_for(1ms);
-        time++;
-        if (has_started && time == 1000) {
-          screen.Post([&]{time_left--;});
-          screen.Post(Event::Custom);
-          time = 0;
+      // Loop until time runs out or user exits out of the game UI
+      while (time_left > 0 && !is_exited) {
+
+        // Start counting time down only after the first input
+        if (!has_started) {
+          continue;
         }
+
+        // 50ms instead of 1s so the delay after 
+        // exiting the game isn't so noticeable
+        using namespace std::chrono_literals;
+        std::this_thread::sleep_for(50ms);
+        ticks++;
+        if (ticks >= 1000 / 50) {
+        screen.Post([&]{time_left--;});
+        screen.Post(Event::Custom);
+        ticks = 0;
+        }
+
       }
-      if (!is_exited) {result_shown = true;}
     });
 
 
