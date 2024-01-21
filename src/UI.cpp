@@ -18,6 +18,7 @@ using namespace ftxui;
 
 const std::string WORD_FILE = "../wordlists/english-common.txt";
 
+bool has_started = false;
 
 void menu(){
 
@@ -60,8 +61,6 @@ void game_view(int length, Game* game, int screen_width){
 
   auto screen = ScreenInteractive::Fullscreen();
 
-  bool has_started = false;
-
   // Component containing the game UI rendering
   auto main_component = Container::Vertical({
       Renderer([&]{
@@ -79,9 +78,10 @@ void game_view(int length, Game* game, int screen_width){
       Renderer([&]{return render_command(game, screen_width);}),
       });
 
+  // Modal component to be displayed after time has run out
   auto result = Container::Vertical({
       Renderer([&]{
-          return text("wpm: " +std::to_string(game->get_wpm()));
+          return text("wpm: " + std::to_string(game->get_wpm()));
           }),
       Button("OK", screen.ExitLoopClosure()),
       });
@@ -90,7 +90,8 @@ void game_view(int length, Game* game, int screen_width){
   main_component |= Modal(result, &result_shown);
 
   main_component |= CatchEvent([&](Event event) {
-
+ 
+      // Blocks inputs in the main component once time has run out.
       if (result_shown) {return false;}
 
       Letter* letter = game->get_current_letter();
