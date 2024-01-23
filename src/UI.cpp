@@ -137,15 +137,14 @@ void game_UI(int length, Game* game, int screen_width){
         is_exited = true;
         screen.ExitLoopClosure()();
         return true;
+      }
 
       // Update screen_width with every caught event.
+      screen_width = screen.dimx();
+      
       // Trigger result screen once time runs out.
-      } else {
-        screen_width = screen.dimx();
-        if (time_left == 0) {
-          result_shown = true;
-        }
-
+      if (time_left == 0) {
+        result_shown = true;
       }
 
       return false;
