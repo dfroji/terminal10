@@ -33,13 +33,12 @@ Game::~Game() {
 
 void Game::generate_letters(int n) {
 
-  mistakes_by_word_.reserve(std::size(mistakes_by_word_) + n);
+  mistakes_by_word_.resize(std::size(mistakes_by_word_) + n);
 
   // Use the current time as a seed for the random number generator
   std::srand(std::time(nullptr));
 
   // Generate the letters of n words.
-  // Also add a space after every whole word.
   for (int i = 0; i < n; i++) {
     std::string word = wordlist_[std::rand() % wordlist_.size()];
 
