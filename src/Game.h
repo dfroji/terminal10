@@ -16,13 +16,17 @@ struct Letter {
   Letter* prev;
 };
 
+// Constants for generating new Letters
+const int GENERATED_WORDS = 100;
+const int WORD_BUFFER = 20;
+
 class Game {
   public:
     Game(std::string word_file, int length);
     ~Game();
 
-    // Get n words from words_ and generate Letters out of them
-    void generate_letters(int n);
+    // Get n words from wordlist_ and generate Letters out of them
+    void generate_letters();
 
     // Return first_letter_
     Letter* get_first_letter();
@@ -76,4 +80,5 @@ class Game {
 
     std::vector<int> mistakes_by_word_ = {0};
     int current_word_ = 0;
+    int total_words_ = 0;
 };

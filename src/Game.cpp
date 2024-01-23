@@ -16,8 +16,8 @@ Game::Game(std::string word_file, int length) {
     wordlist_.emplace_back(line);
   }
 
-  // Generate the initial letters from n words
-  generate_letters(100);
+  // Generate the initial letters
+  generate_letters();
 }
 
 Game::~Game() {
@@ -31,15 +31,15 @@ Game::~Game() {
   }
 }
 
-void Game::generate_letters(int n) {
+void Game::generate_letters() {
 
-  mistakes_by_word_.resize(std::size(mistakes_by_word_) + n);
+  mistakes_by_word_.resize(std::size(mistakes_by_word_) + GENERATED_WORDS);
 
   // Use the current time as a seed for the random number generator
   std::srand(std::time(nullptr));
 
   // Generate the letters of n words.
-  for (int i = 0; i < n; i++) {
+  for (int i = 0; i < GENERATED_WORDS; i++) {
     std::string word = wordlist_[std::rand() % wordlist_.size()];
 
     for (char c : word) {
@@ -84,6 +84,9 @@ void Game::go_to_next_letter() {
     current_word_ += 1;
     mistakes_by_word_[current_word_] = 0;
   }
+
+  // Generate new Letters if the buffer is reached
+  if (current_word_ >= total_words_ - WORD_BUFFER) {generate_letters();}
 
   current_letter_ = current_letter_->next;
   current_letter_->status = active;
