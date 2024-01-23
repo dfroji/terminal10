@@ -270,14 +270,17 @@ MenuOption hmenu_style() {
   };
   option.underline.color_inactive = Color::Default;
   option.underline.color_active = Color::Cyan;
-  option.elements_prefix = []{return text(" Time (s) --- ");};
+  option.elements_prefix = []{return text(" Time »»» ");};
   option.elements_infix = []{return text(" / ");};
+  option.elements_postfix = []{return text(" seconds");};
 
   return option;
 }
 
 ButtonOption button_style() {
-  auto option = ButtonOption::Animated();
+  Color background = Color::White;
+  Color foreground = Color::Cyan;
+  auto option = ButtonOption::Animated(background, foreground);
 
   return option;
 }
