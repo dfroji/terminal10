@@ -6,6 +6,7 @@
 #include <thread>
 #include <chrono>
 #include <cmath>
+#include <fstream>
 
 #include "ftxui/component/component.hpp"
 #include "ftxui/component/component_base.hpp"
@@ -23,6 +24,7 @@ Element letter_render(Game* game, int& screen_width);
 
 MenuOption hmenu_style();
 ButtonOption button_style();
+std::vector<std::string> read_wordlist_file(std::string wordfile);
 
 void UI::menu(){
 
@@ -36,13 +38,28 @@ void UI::menu(){
   };
   int selected_length = 0;
 
+
+  // Modal component to be displayed if reading word list file fails
+  bool error_shown = false;
+  auto error_modal = Container::Vertical({
+      Container::Horizontal({
+          Button("OK", [&]{error_shown = false;}, button_style()),
+          }) | center,
+      Renderer([]{return text("Failed to read word list file!");})
+      });
+
   auto menu = Container::Vertical({
       Container::Horizontal({
           // Start button initializes a Game and runs the game UI
           Button("Start", [&]{
-              std::string length = lengths[selected_length];
-              Game* game = new Game(WORD_FILE, std::stoi(length));
-              game_UI(std::stoi(length), game, screen.dimx());
+              std::vector<std::string> wordlist = read_wordlist_file(WORD_FILE);
+              if (wordlist.empty()) {
+                error_shown = true;
+              } else {
+                std::string length = lengths[selected_length];
+                Game* game = new Game(wordlist, std::stoi(length));
+                game_UI(std::stoi(length), game, screen.dimx());
+              }
               }, button_style()),
 
           // Quit button
@@ -55,6 +72,8 @@ void UI::menu(){
           }),
 
   });
+
+  menu |= Modal(error_modal, &error_shown);
 
   screen.Loop(menu);
 }
@@ -282,4 +301,28 @@ ButtonOption button_style() {
   auto option = ButtonOption::Animated(background, foreground);
 
   return option;
+}
+
+std::vector<std::string> read_wordlist_file(std::string wordfile) {
+
+  // Tries to return a list of words from given file.
+  // Returns empty vector if reading the file fails.
+  try {
+    std::vector<std::string> wordlist;
+
+    std::ifstream file(wordfile);
+    std::string line;
+    while (std::getline(file, line)) {
+      wordlist.emplace_back(line);
+    }
+    file.close();
+
+    return wordlist;
+
+  }
+  catch (const std::ifstream::failure& e) {
+    return {};
+
+  }  
+
 }

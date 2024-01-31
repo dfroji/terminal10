@@ -5,18 +5,9 @@
 #include <ctime>
 #include <cmath>
 
-Game::Game(std::string word_file, int length) {
-
+Game::Game(std::vector<std::string> wordlist, int length) {
   length_ = length;
-
-  // Read the given word file for words
-  std::ifstream File(word_file);
-  std::string line;
-  while (std::getline(File, line)) {
-    wordlist_.emplace_back(line);
-  }
-
-  // Generate the initial letters
+  wordlist_ = wordlist;
   generate_letters();
 }
 

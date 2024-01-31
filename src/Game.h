@@ -22,7 +22,7 @@ const int WORD_BUFFER = 20;
 
 class Game {
   public:
-    Game(std::string word_file, int length);
+    Game(std::vector<std::string> wordlist, int length);
     ~Game();
 
     // Return first_letter_
