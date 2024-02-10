@@ -19,6 +19,14 @@ using namespace ftxui;
 
 const std::string WORD_FILE = "../wordlists/english-common.txt";
 
+const Color BGCOLOR = Color::Black;
+const Color DEFCOLOR = Color::White;
+const Color CORRECTCOLOR = Color::Green;
+const Color INCORRECTCOLOR = Color::Red;
+const Color ACTIVECOLOR = Color::White;
+const Color INACTIVECOLOR = Color::GrayDark;
+const Color ACCENTCOLOR = Color::Cyan;
+
 void game_UI(int length, Game* game, int screen_width);
 Element letter_render(Game* game, int& screen_width);
 
@@ -69,9 +77,9 @@ void UI::menu(){
       // Game length toggle
       Container::Horizontal({
           Menu(&lengths, &selected_length, hmenu_style()),
-          }),
+          }) | color(DEFCOLOR),
 
-  });
+  }) | bgcolor(BGCOLOR);
 
   menu |= Modal(error_modal, &error_shown);
 
@@ -90,7 +98,8 @@ void game_UI(int length, Game* game, int screen_width){
   // Component containing the game UI rendering
   auto main_component = Container::Vertical({
       Renderer([&]{
-          return text("Time left: " + std::to_string(time_left));
+          return text("Time left: " + 
+                    std::to_string(time_left)) | color(DEFCOLOR);
           }),
       Renderer([&]{
           return text(
@@ -99,10 +108,10 @@ void game_UI(int length, Game* game, int screen_width){
               + " ("
               + std::to_string(game->get_total_mistakes())
               + ")"
-            );
+            ) | color(DEFCOLOR);
           }),
       Renderer([&]{return letter_render(game, screen_width);}),
-      });
+      }) | bgcolor(BGCOLOR);
 
   // Modal component to be displayed after time has run out
   auto result = Container::Vertical({
@@ -226,13 +235,13 @@ Element letter_render(Game* game, int& screen_width) {
       Color clr;
       switch(letter->status) {
         case correct:
-        clr = Color::GreenLight;
+        clr = CORRECTCOLOR;
         break;
 
         case incorrect:
         // Render the incorrect input instead of the original character
         chr = letter->input;
-        clr = Color::Red;
+        clr = INCORRECTCOLOR;
       }
 
       // Color the background if chr is an incorrectly input space.
@@ -255,12 +264,12 @@ Element letter_render(Game* game, int& screen_width) {
   for (int i = 0; i < n; i++) {
     Letter* l = game->get_nth_next(i);
 
-    // Set color to white if it is the current letter.
-    // Otherwise keep the color gray.
-    Color c = Color::GrayDark;
+    // Set color to ACTIVECOLOR if it is the current letter.
+    // Otherwise keep the color INCORRECTCOLOR.
+    Color c = INACTIVECOLOR;
     switch(l->status) {
       case active:
-      c = Color::White;
+      c = ACTIVECOLOR;
       break;
     }
 
@@ -279,15 +288,15 @@ MenuOption hmenu_style() {
   option.entries_option.transform = [](EntryState state) {
     Element e = text(state.label) | hcenter;
     if (state.focused)
-      e = e | color(Color::Cyan);
+      e = e | color(ACCENTCOLOR);
     if (state.active)
       e = e | bold;
     if (!state.focused && !state.active)
       e = e | dim;
     return e;
   };
-  option.underline.color_inactive = Color::Default;
-  option.underline.color_active = Color::Cyan;
+  option.underline.color_inactive = DEFCOLOR;
+  option.underline.color_active = ACCENTCOLOR;
   option.elements_prefix = []{return text(" Time »»» ");};
   option.elements_infix = []{return text(" / ");};
   option.elements_postfix = []{return text(" seconds");};
@@ -296,8 +305,8 @@ MenuOption hmenu_style() {
 }
 
 ButtonOption button_style() {
-  Color background = Color::White;
-  Color foreground = Color::Cyan;
+  Color background = DEFCOLOR;
+  Color foreground = ACCENTCOLOR;
   auto option = ButtonOption::Animated(background, foreground);
 
   return option;
